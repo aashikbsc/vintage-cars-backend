@@ -1,7 +1,9 @@
+const mongoose = require('mongoose')
 var User = require("../model/userModel.js");
 var Otp = require("../model/otpModel.js");
 const { validationResult } = require('express-validator');
 var commonUtils = require('../utils/commonUtils')
+var authValidation = require('../middleWare/authValidation')
 
 // This function is used to sign in a user account with an email and password.
 exports.signIn = function (req, res) {
@@ -54,9 +56,9 @@ exports.signUp = async function (req, res) {
       message:`Verification code is ${otpCode}`,
     })
   }).catch((error) => {
-    res.status(400).json({
+    res.status(500).json({
       status:false,
-      message:"Something went wrong"
+      message:"An error occurred while inserting records."
     })
   })
 }
@@ -90,10 +92,57 @@ exports.verifyOTP = async function (req, res) {
         token,
       })
     }).catch((error) => {
-      res.status(400).json({
+      res.status(500).json({
         status:false,
-        message:"Something went wrong",
+        message:"An error occurred while registering users.",
         token:null,
       })
     })
+};
+
+// This function is used to list users.
+exports.listUsers = async function (req, res) {
+  if (await commonUtils.isAdmin(req.decoded.userId)) {
+    User.find().then((users) => {
+      let usersList = []
+      for (let i = 0; i < users.length; i++) {
+        usersList.push({
+          id: users[i]._id,
+          username: users[i].username,
+          email: users[i].email,
+          number: users[i].number,
+          usertype: users[i].usertype,
+        })
+      }
+      res.status(200).json({
+        status:true,
+        message:"Successfully retrieved the users list",
+        users: usersList,
+      })
+    })
+  } else {
+    res.status(400).json({
+      status:false,
+      message:"Access denied",
+    })
+  }
+};
+
+// This function is used to delete users.
+exports.deleteUsers = async function (req, res) {
+  if (await commonUtils.isAdmin(req.decoded.userId)) {
+    const users = req.body.userids.replace(/\[|\]/g, "").split(",");
+    const objectIds = users.map((id) => new mongoose.Types.ObjectId(id.trim()));
+    User.deleteMany({ _id: { $in: objectIds } }).then((result) => {
+      res.status(200).json({
+        status:true,
+        message:`${result.deletedCount} user(s) deleted successfully`,
+      })
+    })
+  } else {
+    res.status(400).json({
+      status:false,
+      message:"Access denied",
+    })
+  }
 };

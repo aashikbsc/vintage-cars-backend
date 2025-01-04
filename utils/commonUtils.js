@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const config = require("../config/config")
-console.log("CONFIG DATA", config.authorizationSecretkey)
+var User = require("../model/userModel.js");
 
 // This function used to generate a random 6-digit OTP
 exports.generateOTP = () => {
@@ -16,3 +16,12 @@ exports.generateToken = (params) => {
         date: Date.now(),
     },config.authorizationSecretkey,{expiresIn: '48h'})
 }
+
+// This function is used to validate admin access.
+exports.isAdmin = async(id) => {
+    const user = await User.findOne({ _id: id });
+    if (user && user.usertype === "admin") {
+        return true;
+    }
+    return false;
+};
