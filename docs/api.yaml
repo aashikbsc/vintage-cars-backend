@@ -1,0 +1,153 @@
+openapi: 3.0.0
+info:
+  title: Vintage Cars API
+  version: 1.0.0
+  description: API documentation for Vintage Cars
+servers:
+  - url: http://localhost:8080
+paths:
+  /user/verify-otp/:
+    post:
+      summary: Verify the verification codes.
+      description: API to verify the verification code and register the user info
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - otp
+                - username
+                - email
+                - number
+                - usertype
+                - password
+              properties:
+                otp:
+                  type: number
+                  description: The verification code
+                  example: 506845
+                username:
+                  type: string
+                  description: The user's username
+                  example: "newuser"
+                email:
+                  type: string
+                  format: email
+                  description: The user's email address
+                  example: "user@example.com"
+                number:
+                  type: string
+                  pattern: '^[6-9]\d{9}$'
+                  description: The user's mobile number (Indian only)
+                  example: "6382345678"
+                usertype:
+                  type: string
+                  description: The user's type
+                  example: "user"
+                password:
+                  type: string
+                  format: password
+                  description: The user's password
+                  example: "securepassword123"
+      responses:
+        200:
+          description: Successfully registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Indicates success
+                    example: true
+                  message:
+                    type: string
+                    description: A success message
+                    example: "Successfully Registered"
+                  token:
+                    type: string
+                    nullable: true
+                    description: Authorization token
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+  /user/register/:
+    post:
+      summary: Verify the verification codes.
+      description: API to verify the verification code and register the user info
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - number
+              properties:
+                number:
+                  type: string
+                  pattern: '^[6-9]\d{9}$'
+                  description: The user's mobile number (Indian only)
+                  example: "6382345678"
+      responses:
+        200:
+          description: Verification code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Indicates success
+                    example: true
+                  message:
+                    type: string
+                    description: A success message
+                    example: "OTP send 506845"
+  /user/login/:
+    post:
+      summary: sign in a user account.
+      description: API to sign in a user account with an email and password.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The user's email address
+                  example: "user@example.com"
+                password:
+                  type: string
+                  format: password
+                  description: The user's password
+                  example: "securepassword123"
+      responses:
+        200:
+          description: Login result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    description: Indicates success
+                    example: true
+                  message:
+                    type: string
+                    description: A success message
+                    example: "Successfully Login"
+                  token:
+                    type: string
+                    nullable: true
+                    description: Authorization token
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
