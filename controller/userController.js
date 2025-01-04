@@ -131,12 +131,17 @@ exports.listUsers = async function (req, res) {
 // This function is used to delete users.
 exports.deleteUsers = async function (req, res) {
   if (await commonUtils.isAdmin(req.decoded.userId)) {
-    const users = req.body.userids.replace(/\[|\]/g, "").split(",");
+    const users = Array.isArray(req.body.userids) ? req.body.userids : req.body.userids.replace(/\[|\]/g, "").split(",");
     const objectIds = users.map((id) => new mongoose.Types.ObjectId(id.trim()));
     User.deleteMany({ _id: { $in: objectIds } }).then((result) => {
       res.status(200).json({
         status:true,
         message:`${result.deletedCount} user(s) deleted successfully`,
+      })
+    }).catch((error) => {
+      res.status(400).json({
+        status:true,
+        message:"An error occurred while deleting users.",
       })
     })
   } else {
