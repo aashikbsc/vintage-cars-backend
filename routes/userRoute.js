@@ -9,4 +9,5 @@ router.post('/verify-otp', validation.verifyOTPValidation, controller.verifyOTP)
 router.post('/login', validation.loginValidation, controller.signIn);
 router.get('/list', authValidation, controller.listUsers);
 router.delete('/delete', authValidation, controller.deleteUsers);
+router.put('/update-user-info', authValidation, controller.updateUserInfo);
 module.exports = router
