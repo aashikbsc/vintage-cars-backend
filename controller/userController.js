@@ -18,7 +18,7 @@ exports.signIn = function (req, res) {
       if (!match) {
         res.json({
           status:false,
-          message:"Password Incorrect",
+          message:"Incorrect password",
           token:null,
         })
       } else{
@@ -68,7 +68,7 @@ exports.generateOTP = async function (req, res) {
   }).catch((error) => {
     res.status(500).json({
       status:false,
-      message:"An error occurred while inserting records."
+      message:"An error occurred while inserting OTP records."
     })
   })
 }
@@ -137,24 +137,32 @@ exports.listUsers = async function (req, res) {
 
 // This function is used to delete users.
 exports.deleteUsers = async function (req, res) {
-  if (await commonUtils.isAdmin(req.decoded.userId)) {
-    const users = Array.isArray(req.body.userids) ? req.body.userids : req.body.userids.replace(/\[|\]/g, "").split(",");
-    const objectIds = users.map((id) => new mongoose.Types.ObjectId(id.trim()));
-    User.deleteMany({ _id: { $in: objectIds } }).then((result) => {
-      res.status(200).json({
-        status:true,
-        message:`${result.deletedCount} user(s) deleted successfully`,
+  try {
+    if (await commonUtils.isAdmin(req.decoded.userId)) {
+      const users = req.body.userids.trim().split(",");
+      const objectIds = users.map((id) => new mongoose.Types.ObjectId(id.trim()));
+      User.deleteMany({ _id: { $in: objectIds } }).then((result) => {
+        res.status(200).json({
+          status:true,
+          message:`${result.deletedCount} user(s) deleted successfully`,
+        })
+      }).catch((error) => {
+        res.status(400).json({
+          status:false,
+          message:"An error occurred while deleting users.",
+        })
       })
-    }).catch((error) => {
+    } else {
       res.status(400).json({
         status:false,
-        message:"An error occurred while deleting users.",
+        message:"Access denied",
       })
-    })
-  } else {
-    res.status(400).json({
+    }
+  } catch (error) {
+    res.status(500).json({
       status:false,
-      message:"Access denied",
+      message:"Internal server error",
+      token:null,
     })
   }
 };
@@ -201,7 +209,7 @@ exports.updateContactInfo = async function (req, res) {
   User.updateOne({ _id: req.decoded.userId }, { $set: updatedData}).then((result) => {
     res.status(200).json({
       status:true,
-      message:`Successfully updated user information`,
+      message:`Successfully updated user contact information`,
     })
   }).catch((error) => {
     res.status(500).json({
