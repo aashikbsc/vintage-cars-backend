@@ -10,13 +10,13 @@ const bcrypt = require('bcrypt')
 exports.signIn = function (req, res) {
   User.findOne({ email: req.body.email }).then((user) => {
     if(!user) {
-      res.json({
+      res.status(400).json({
         status:false,
         message:`We can't find an account with ${req.body.email}. Try another email address`,
       })
     } else if(user.comparePassword(req.body.password, (error,match) =>{
       if (!match) {
-        res.json({
+        res.status(400).json({
           status:false,
           message:"Incorrect password",
           token:null,
@@ -27,7 +27,7 @@ exports.signIn = function (req, res) {
           username: user.username,
           token:null,
         })
-        res.json({
+        res.status(200).json({
           status:true,
           message:"Successfully Login",
           token,
@@ -93,6 +93,9 @@ exports.signUp = async function (req, res) {
         id: result._id,
         username: result.username,
       })
+      // usr
+      // email
+      // profile 
       res.status(200).json({
         status:true,
         message:"Successfully Registered",

@@ -9,6 +9,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const config = require("./config/config")
 var userRoute = require("./routes/userRoute");
+var carRoute = require("./routes/carRoute");
 
 mongoose.connect('mongodb://localhost:27017/vintageCarsDB', {
   useNewUrlParser: true,
@@ -20,11 +21,13 @@ mongoose.connect('mongodb://localhost:27017/vintageCarsDB', {
 });
 
 var app = express();
+app.use('/images', express.static('Images'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(cors({origin: '*'}));
 // app.use(cors({origin: 'http://localhost:4200'}));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/user',userRoute)
+app.use('/cars', carRoute);
+app.use('/user', userRoute);
 
 app.set("port", config.port);
 app.listen(app.get("port"), () =>
