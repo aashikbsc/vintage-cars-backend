@@ -21,7 +21,8 @@ mongoose.connect('mongodb://localhost:27017/vintageCarsDB', {
 });
 
 var app = express();
-app.use('/images', express.static('Images'));
+app.use('/images', express.static('carImages'));
+app.use('/sliderImages', express.static('sliderImages'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(cors({origin: '*'}));
 // app.use(cors({origin: 'http://localhost:4200'}));

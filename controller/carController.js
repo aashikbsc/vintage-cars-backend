@@ -34,7 +34,7 @@ exports.registerCarInfo = async function (req, res) {
 
 // This function is used to store slider information.
 exports.registerSliderInfo = async function (req, res) {
-	if (await commonUtils.isAdmin(req.decoded.userId)) {
+	if (req.file && await commonUtils.isAdmin(req.decoded.userId)) {
 		Slider.findOne({ position: req.body.position }).then((result) => {
 			if (result) {
 				return res.status(400).json({
@@ -42,7 +42,6 @@ exports.registerSliderInfo = async function (req, res) {
 	        		message:"The position has already been registered. Please choose another position or delete the existing slide.",
 	        	})
 			}
-			console.log("SLIDER INFO BODY DATA", req.body);
 			var sliderInfo = new Slider({
 			    image: req.file.path,
 				position: req.body.position,
@@ -67,7 +66,7 @@ exports.registerSliderInfo = async function (req, res) {
 	} else {
 		res.status(400).json({
 			status:false,
-        	message:"Access denied",
+        	message: !req.file ? "Image data is required" : "Access denied",
         })
 	}
 }
