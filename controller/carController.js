@@ -70,3 +70,91 @@ exports.registerSliderInfo = async function (req, res) {
         })
 	}
 }
+
+// This function is used to getting a car info list with and without a filter.
+exports.getCarsInfo = async function (req, res) {
+	const { brand } = req.query;
+	// Build the filter object dynamically
+	const filter = brand ? { brand } : {};
+	Car.find(filter).then((result) => {
+		let carsList = []
+		for (let i = 0; i < result.length; i++) {
+			carsList.push({
+				id: result[i]._id,
+				name: result[i].name,
+				model: result[i].model,
+				price: result[i].price,
+				brand: result[i].brand,
+				color: result[i].color,
+				image: result[i].image,
+				createdAt: result[i].createdAt,
+			})
+		}
+		res.status(200).json({
+			status:true,
+			message:"Successfully retrieved the users list",
+			cars: carsList,
+		})
+	}).catch((error) => {
+		return res.status(500).json({
+			status:false,
+			message:"An error occurred while getting the cars info list.",
+		})
+	})
+}
+// This function is used to get a sliders info list.
+exports.getSlidersInfo = async function (req, res) {
+	Slider.find().then((result) => {
+		let slidersList = []
+		for (let i = 0; i < result.length; i++) {
+			slidersList.push({
+				id: result[i]._id,
+				image: result[i].image,
+				position: result[i].position,
+				createdAt: result[i].createdAt,
+			})
+		}
+		res.status(200).json({
+			status:true,
+			message:"Successfully retrieved the sliders list",
+			slides: slidersList,
+		})
+	}).catch((error) => {
+		return res.status(500).json({
+			status:false,
+			message:"An error occurred while getting the sliders info list.",
+		})
+	})
+}
+// This function is used to delete a slider's info..
+exports.deleteSliderInfo = async function (req, res) {
+	if (await commonUtils.isAdmin(req.decoded.userId)) {
+		Slider.deleteOne({ _id: req.body.id }).then((result) => {
+			res.status(200).json({
+				status:true,
+				message: `${result.deletedCount} Slider info is deleted successfully.`,
+			})
+		}).catch((error) => {
+			return res.status(500).json({
+				status:false,
+				message:"An error occurred while deleting the slider info.",
+			})
+		})
+	}
+}
+// This function is used to delete a car's info..
+exports.deleteCarInfo = async function (req, res) {
+	if (await commonUtils.isAdmin(req.decoded.userId)) {
+		Car.deleteOne({ _id: req.body.id }).then((result) => {
+			res.status(200).json({
+				status:true,
+				message: `${result.deletedCount} Car info is deleted successfully.`,
+			})
+		}).catch((error) => {
+			return res.status(500).json({
+				status:false,
+				message:"An error occurred while deleting the car info.",
+			})
+		})
+	}
+}
