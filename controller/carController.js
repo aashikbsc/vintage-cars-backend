@@ -4,14 +4,18 @@ const commonUtils = require('../utils/commonUtils');
 
 // This function is used to register car information.
 exports.registerCarInfo = async function (req, res) {
-	if (req.file && await commonUtils.isAdmin(req.decoded.userId)) {
+	if (req.files && req.files.length > 0 && await commonUtils.isAdmin(req.decoded.userId)) {
+		let fileNames = []
+		req.files.forEach((file) => {
+          fileNames.push(file.path);
+        });
 		var carInfo = new Car({
 			name: req.body.name,
 		    model: req.body.model,
 		    price: req.body.price,
 		    brand: req.body.brand,
 		    color: req.body.color,
-		    image: req.file.path,
+		    image: fileNames,
 		});
 		carInfo.save().then(async (result) => {
 			res.status(200).json({

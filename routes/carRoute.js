@@ -27,10 +27,9 @@ const upload = multer({
     },
     limits:{ fileSize: 3 * 1024 * 1024}
 });
-const imageData = upload.single("images")
 
-router.post('/register-car-info', authValidation, imageData, carModuleValidation.carInfoValidation, controller.registerCarInfo);
-router.post('/register-slider-info', authValidation, imageData, carModuleValidation.sliderInfoValidation, controller.registerSliderInfo);
+router.post('/register-car-info', authValidation, upload.array("images"), carModuleValidation.carInfoValidation, controller.registerCarInfo);
+router.post('/register-slider-info', authValidation, upload.single("images"), carModuleValidation.sliderInfoValidation, controller.registerSliderInfo);
 router.get('/car-list', authValidation, controller.getCarsInfo);
 router.get('/slider-list', authValidation, controller.getSlidersInfo);
 router.delete('/delete-slider-info', authValidation, controller.deleteSliderInfo);
