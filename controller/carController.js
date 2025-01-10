@@ -4,8 +4,7 @@ const commonUtils = require('../utils/commonUtils');
 
 // This function is used to register car information.
 exports.registerCarInfo = async function (req, res) {
-	if (await commonUtils.isAdmin(req.decoded.userId)) {
-		console.log("CAR INFO BODY DATA", req.body);
+	if (req.file && await commonUtils.isAdmin(req.decoded.userId)) {
 		var carInfo = new Car({
 			name: req.body.name,
 		    model: req.body.model,
@@ -15,7 +14,6 @@ exports.registerCarInfo = async function (req, res) {
 		    image: req.file.path,
 		});
 		carInfo.save().then(async (result) => {
-			console.log("result", result)
 			res.status(200).json({
 				status:true,
 	        	message:"Successfully Registered",
@@ -29,7 +27,7 @@ exports.registerCarInfo = async function (req, res) {
 	} else {
 		res.status(400).json({
 			status:false,
-        	message:"Access denied",
+        	message: !req.file ? "Image data is required" : "Access denied",
         })
 	}
 }

@@ -8,7 +8,6 @@ var multer = require('multer');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-    	console.log("origin", req.originalUrl === "/cars/register-car-info")
     	let folderName = req.originalUrl === "/cars/register-car-info" ? "carImages" : "sliderImages"
         cb(null, folderName);
     },
@@ -23,7 +22,6 @@ const upload = multer({
         if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg" || file.mimetype == "image/gif" || file.mimetype == "video/mp4") {
             cb(null, true);
         } else {
-            cb(null, false);
             return cb(new Error('Only .png, and .jpg and .jpeg and .gif and .mp4 format allowed'));
         }
     },
@@ -31,6 +29,6 @@ const upload = multer({
 });
 const imageData = upload.single("images")
 
-router.post('/register-car-info', authValidation, carModuleValidation.carInfoValidation, imageData, controller.registerCarInfo);
-router.post('/register-slider-info', authValidation, carModuleValidation.sliderInfoValidation, imageData, controller.registerSliderInfo);
+router.post('/register-car-info', authValidation, imageData, carModuleValidation.carInfoValidation, controller.registerCarInfo);
+router.post('/register-slider-info', authValidation, imageData, carModuleValidation.sliderInfoValidation, controller.registerSliderInfo);
 module.exports = router
