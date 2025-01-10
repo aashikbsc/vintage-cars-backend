@@ -77,9 +77,8 @@ exports.registerSliderInfo = async function (req, res) {
 
 // This function is used to getting a car info list with and without a filter.
 exports.getCarsInfo = async function (req, res) {
-	const { brand } = req.query;
 	// Build the filter object dynamically
-	const filter = brand ? { brand } : {};
+	const filter = req.query.id ? { _id: req.query.id } : {};
 	Car.find(filter).then((result) => {
 		let carsList = []
 		for (let i = 0; i < result.length; i++) {
@@ -96,7 +95,7 @@ exports.getCarsInfo = async function (req, res) {
 		}
 		res.status(200).json({
 			status:true,
-			message:"Successfully retrieved the users list",
+			message:"Successfully retrieved the car's info list.",
 			cars: carsList,
 		})
 	}).catch((error) => {
@@ -144,6 +143,11 @@ exports.deleteSliderInfo = async function (req, res) {
 				message:"An error occurred while deleting the slider info.",
 			})
 		})
+	} else {
+		res.status(400).json({
+			status:false,
+        	message: "Access denied",
+        })
 	}
 }
 // This function is used to delete a car's info..
@@ -160,5 +164,10 @@ exports.deleteCarInfo = async function (req, res) {
 				message:"An error occurred while deleting the car info.",
 			})
 		})
+	} else {
+		res.status(400).json({
+			status:false,
+        	message: "Access denied",
+        })
 	}
 }

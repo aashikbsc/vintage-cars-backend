@@ -22,7 +22,7 @@ const upload = multer({
         if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg" || file.mimetype == "image/gif" || file.mimetype == "video/mp4") {
             cb(null, true);
         } else {
-            return cb(new Error('Only .png, and .jpg and .jpeg and .gif and .mp4 format allowed'));
+            return cb('Only .png, and .jpg and .jpeg and .gif and .mp4 format allowed', false);
         }
     },
     limits:{ fileSize: 3 * 1024 * 1024}
