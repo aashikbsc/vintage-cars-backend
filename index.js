@@ -11,7 +11,7 @@ const config = require("./config/config")
 var userRoute = require("./routes/userRoute");
 var carRoute = require("./routes/carRoute");
 
-mongoose.connect('mongodb://localhost:27017/vintageCarsDB', {
+mongoose.connect(`mongodb://${config.databaseUrl}/vintageCarsDB`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {

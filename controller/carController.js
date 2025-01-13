@@ -1,6 +1,9 @@
 const Car = require("../model/carModel.js");
 const Slider = require("../model/sliderModel.js");
+const Booking = require("../model/bookingModel.js");
 const commonUtils = require('../utils/commonUtils');
+const geolib = require("geolib");
+const axios = require("axios")
 
 // This function is used to register car information.
 exports.registerCarInfo = async function (req, res) {
@@ -171,3 +174,103 @@ exports.deleteCarInfo = async function (req, res) {
         })
 	}
 }
+
+// This function is used to register car information.
+exports.booking = async function (req, res) {
+	const distance = await getDistance(req.body.from, req.body.to);
+	let amount = await getPricingByName(req.body.carname);
+	if (distance > 100) amount += 100;
+	if (distance === 0 || amount === 0) {
+		res.status(400).json({
+			status: false,
+			message: amount === 0 ? "Car information not found" : "Location not found",
+	    })
+	}
+	var bookingInfo = new Booking({
+		name: req.body.name,
+		email: req.body.email,
+		number: req.body.number,
+		eventdate: req.body.eventdate,
+		from: req.body.from,
+		to: req.body.to,
+		carname: req.body.carname,
+		amount: amount,
+		isread: false,
+	});
+	bookingInfo.save().then(async (result) => {
+		res.status(200).json({
+			status: true,
+	        message: "Car booked successfully! Details are on their way to your inbox.",
+	    })
+	}).catch((error) => {
+		res.status(500).json({
+			status: false,
+	        message: "Oops! Something went wrong with your booking. Kindly retry.",
+	    })
+	})
+}
+
+// This function is used to register car information.
+exports.bookingList = async function (req, res) {
+	if (await commonUtils.isAdmin(req.decoded.userId)) {
+		Booking.find().then((result) => {
+			let bookinglist = []
+			for (let i = 0; i < result.length; i++) {
+				bookinglist.push({
+					id: result[i]._id,
+					name: result[i].name,
+					email: result[i].email,
+					number: result[i].number,
+					eventdate: result[i].eventdate,
+					from: result[i].from,
+					to: result[i].to,
+					carname: result[i].carname,
+					amount: result[i].amount,
+					isread: result[i].isread,
+					createdAt: result[i].createdAt,
+				})
+			}
+			res.status(200).json({
+				status: true,
+				message: "Successfully retrieved the booking list.",
+				bookinglist,
+			})
+		}).catch((error) => {
+			res.status(500).json({
+				status: false,
+	        	message: "Oops! Something went wrong while getting the booking list.",
+	        })
+		})
+	} else {
+		res.status(400).json({
+			status:false,
+			message: "Access denied",
+		})
+	}
+}
+
+const getPricingByName = async(carName) => {
+	let result = await Car.findOne({ name: carName });
+	return result ? result.price : 0
+}
+const getCoordinates = async(location) => {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}`;
+    try {
+        const response = await axios.get(url);
+        if (response.data.length > 0) {
+            const { lat, lon } = response.data[0];
+            return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+        } else {
+            return null;
+        }
+    } catch (error) {
+        return null;
+    }
+}
+const getDistance = async(from, to) => {
+	const fromLocation = await getCoordinates(from);
+	const toLocation = await getCoordinates(to);
+	if (!fromLocation || !toLocation) return 0;
+	const distanceInKilometers  = geolib.getDistance(fromLocation, toLocation) / 1000;
+	return distanceInKilometers;
+};
