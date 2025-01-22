@@ -9,8 +9,9 @@ const dotenv = require("dotenv");
 dotenv.config();
 const config = require("./config/config")
 var userRoute = require("./routes/userRoute");
+var carRoute = require("./routes/carRoute");
 
-mongoose.connect('mongodb://localhost:27017/vintageCarsDB', {
+mongoose.connect(`mongodb://${config.databaseUrl}/vintageCarsDB`, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 }).then(() => {
@@ -20,11 +21,14 @@ mongoose.connect('mongodb://localhost:27017/vintageCarsDB', {
 });
 
 var app = express();
+app.use('/carImages', express.static('carImages'));
+app.use('/sliderImages', express.static('sliderImages'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(cors({origin: '*'}));
 // app.use(cors({origin: 'http://localhost:4200'}));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/user',userRoute)
+app.use('/cars', carRoute);
+app.use('/user', userRoute);
 
 app.set("port", config.port);
 app.listen(app.get("port"), () =>
